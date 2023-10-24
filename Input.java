@@ -1,7 +1,6 @@
 import java.util.Scanner;
 
 public class Input {
-
     static int newInt() {
         Scanner in = new Scanner(System.in);
         return in.nextInt();
@@ -11,7 +10,4 @@ public class Input {
         Scanner in = new Scanner(System.in);
         return in.nextLine();
     }
-
-
-
 }

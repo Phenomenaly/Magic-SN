@@ -10,13 +10,19 @@ public class Number {
 
     Number(String value, int base) {
         this.value = value;
-
         this.base = base;
-        BASE = DIGIT.substring(0, base);
-
         this.chrArr = getChrArr(value);
-        dec = toDec();
+
         test = test();
+
+        if (test) {
+            BASE = DIGIT.substring(0, base);
+            dec = toDec();
+        }
+        else {
+            dec = NaN;
+            BASE = DIGIT;
+        }
     }
 
     char[] getChrArr(String number) {
@@ -24,13 +30,9 @@ public class Number {
     }
 
     // Преобразование числа в его десятичное представление
-    public double toDec() {
+    double toDec() {
         double tempDec = 0;
         StringBuilder intPart = new StringBuilder(), doublePart = new StringBuilder();
-
-
-        // Если число не прошло тест, то вернуть Не Число
-        if (!test()) return NaN;
 
         // Если основание равно 10, то зачем выполнять все нижеописанное?
         if (base == 10)
@@ -105,13 +107,9 @@ public class Number {
         while (doublePart != 0) {
             doublePart *= base;
 
-            if (doublePart >= 1) {
-                temp = (int) doublePart; doublePart -= temp;
+            temp = (int) doublePart; doublePart -= temp;
 
-                newNumber.append(DIGIT.charAt(temp));
-            }
-            else
-                newNumber.append('0');
+            newNumber.append(DIGIT.charAt(temp));
         }
 
 
@@ -125,10 +123,12 @@ public class Number {
 
         if (value.indexOf('.') != value.lastIndexOf('.')) return false;
 
-        if (value.indexOf('.') == 0) return false;
+        if (value.indexOf('.') == 0 || value.indexOf('.') == value.length() - 1) return false;
+
+        if (base > DIGIT.length() || base < 2) return false;
 
         for (char c : chrArr) {
-            if (BASE.indexOf(c) == -1 && SPECIAL.indexOf(c) == -1) return false;
+            if (DIGIT.substring(0, base).indexOf(c) == -1 && SPECIAL.indexOf(c) == -1) return false;
         }
 
         return true;
@@ -161,5 +161,12 @@ public class Number {
             return "NaN";
 
         return toSN(number1.dec / number2.dec, number1.base);
+    }
+
+    static boolean Equals(Number number1, Number number2) {
+        if (Double.isNaN(number1.dec) && Double.isNaN(number2.dec))
+            return true;
+
+        return number1.dec == number2.dec;
     }
 }
