@@ -23,9 +23,23 @@ public class Main {
 
 
         Number num3 = new Number("FF0A", 16);
-        Number num4 = new Number("1111111100001010", 2);
+        Number num4 = new Number("1111 1111 0000 1010", 2);
 
 
-        System.out.println(Number.Equals(num3, num4)); // true
+        System.out.println(Number.isGreater(num3, num4)); // false
+        System.out.println(Number.isGreaterOrEqual(num3, num4)); // true
+
+        System.out.println(Number.isEqual(num3, num4)); // true
+
+        System.out.println(Number.isLessOrEqual(num3, num4)); // true
+        System.out.println(Number.isLess(num3, num4)); // false
+
+
+        Number num5 = new Number("123.15", 10);
+
+        System.out.println(Number.Floor(num5)); // 123
+        System.out.println(Number.Floor(num5, 1)); // 123.1
+        System.out.println(Number.Floor(num5, 2)); // 123.15
+        System.out.println(Number.Floor(num5, 3)); // 123
     }
 }

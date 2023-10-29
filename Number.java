@@ -3,7 +3,10 @@ import static java.lang.Double.parseDouble;
 
 public class Number {
     static String DIGIT = "0123456789ABCDEF";
-    static String SPECIAL = ".-";
+    static String SPECIAL = ".-_ ";
+
+//    For the future:
+//    static String SPECIAL = ".-_ ()";
 
 
     String value, BASE; int base; double dec; char[] chrArr; boolean test;
@@ -11,7 +14,7 @@ public class Number {
     Number(String value, int base) {
         this.value = value;
         this.base = base;
-        this.chrArr = getChrArr(value);
+        this.chrArr = getChrArr();
 
         test = test();
 
@@ -25,11 +28,12 @@ public class Number {
         }
     }
 
-    char[] getChrArr(String number) {
-        return number.toCharArray();
+    char[] getChrArr() {
+        value = value.replace(" ", "").replace("_", "");
+
+        return value.toCharArray();
     }
 
-    // Преобразование числа в его десятичное представление
     double toDec() {
         double tempDec = 0;
         StringBuilder intPart = new StringBuilder(), doublePart = new StringBuilder();
@@ -46,7 +50,6 @@ public class Number {
         }
 
 
-        // Разбиение строки на две подстроки - после точки и до точки.
         for (char c : value.toCharArray()) {
             if (c == '.') {
                 dot = true;
@@ -57,14 +60,12 @@ public class Number {
             else intPart.append(c);
         }
 
-        // Вычисление целой части
         for (int i = 0; i < intPart.length(); i++) {
             char tempChr = intPart.charAt(i);
 
             tempDec += BASE.indexOf(tempChr) * Math.pow(base, intPart.length() - i - 1);
         }
 
-        // Вычисление дробной части
         for (int i = 0; i < doublePart.length(); i++) {
             char tempChr = doublePart.charAt(i);
 
@@ -103,7 +104,6 @@ public class Number {
 
 
 
-        // Надо бы проверить на ошибки...
         while (doublePart != 0) {
             doublePart *= base;
 
@@ -117,7 +117,6 @@ public class Number {
         return sign + newNumber;
     }
 
-    // проверяет, возможно ли число в данной системе счислия и верна ли запись
     boolean test() {
         if (value.indexOf('-') != -1 && value.lastIndexOf('-') != 0) return false;
 
@@ -134,7 +133,7 @@ public class Number {
         return true;
     }
 
-    // складывает два числа (их десятичное представление) и выводит ответ в системе счисления первого числа
+    /** Additions two numbers (their decimal representation) and displays the answer in the number system of the first number */
     static String Plus(Number number1, Number number2) {
         if (!number1.test || !number2.test)
             return "NaN";
@@ -142,6 +141,7 @@ public class Number {
         return toSN(number1.dec + number2.dec, number1.base);
     }
 
+    /** Subtractions two numbers (their decimal representation) and displays the answer in the number system of the first number */
     static String Minus(Number number1, Number number2) {
         if (!number1.test || !number2.test)
             return "NaN";
@@ -149,6 +149,7 @@ public class Number {
         return toSN(number1.dec - number2.dec, number1.base);
     }
 
+    /** Multiplications two numbers (their decimal representation) and displays the answer in the number system of the first number */
     static String Multiply(Number number1, Number number2) {
         if (!number1.test || !number2.test)
             return "NaN";
@@ -156,6 +157,7 @@ public class Number {
         return toSN(number1.dec * number2.dec, number1.base);
     }
 
+    /** Division two numbers (their decimal representation) and displays the answer in the number system of the first number */
     static String Division(Number number1, Number number2) {
         if (!number1.test || !number2.test)
             return "NaN";
@@ -163,10 +165,47 @@ public class Number {
         return toSN(number1.dec / number2.dec, number1.base);
     }
 
-    static boolean Equals(Number number1, Number number2) {
-        if (Double.isNaN(number1.dec) && Double.isNaN(number2.dec))
-            return true;
+    /** Returns true if number1 > number2 */
+    static boolean isGreater(Number number1, Number number2) {
+        return number1.dec > number2.dec;
+    }
 
+    /** Returns true if number1 >= number2 */
+    static boolean isGreaterOrEqual(Number number1, Number number2) {
+        return number1.dec >= number2.dec;
+    }
+
+    /** Returns true if number1 == number2 */
+    static boolean isEqual(Number number1, Number number2) {
         return number1.dec == number2.dec;
+    }
+
+    /** Returns true if number1 <= number2 */
+    static boolean isLessOrEqual(Number number1, Number number2) {
+        return number1.dec <= number2.dec;
+    }
+
+    /** Returns true if number1 < number2 */
+    static boolean isLess(Number number1, Number number2) {
+        return number1.dec < number2.dec;
+    }
+
+    /** Returns a value without fractional part */
+    static String Floor(Number number) {
+        if (Double.isNaN(number.dec))
+            return number.value;
+
+        return number.value.substring(0, number.value.indexOf('.'));
+    }
+
+    /** Returns a number with the index of decimal places */
+    static String Floor(Number number, int index) {
+        if (Double.isNaN(number.dec))
+            return number.value;
+
+        if (index > 0 && index < number.value.length() - Floor(number).length())
+            return number.value.substring(0, number.value.indexOf('.') + index + 1);
+
+        return number.value.substring(0, number.value.indexOf('.'));
     }
 }
