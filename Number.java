@@ -1,5 +1,4 @@
-import static java.lang.Double.NaN;
-import static java.lang.Double.parseDouble;
+import static java.lang.Double.*;
 
 public class Number {
     static String DIGIT = "0123456789ABCDEF";
@@ -39,11 +38,13 @@ public class Number {
         value = value.replace(" ", "").replace("_", "");
         value = value.replace(",", ".");
 
-        for (int i = value.length() - 1; i >= value.indexOf('.'); i--) {
-            if (value.charAt(i) != '0')
-                break;
-            else
-                value = value.substring(0, i);
+        if (value.contains(".")) {
+            for (int i = value.length() - 1; i >= value.indexOf('.'); i--) {
+                if (value.charAt(i) != '0')
+                    break;
+                else
+                    value = value.substring(0, i);
+            }
         }
 
         if (value.charAt(value.length() - 1) == '.')
@@ -55,7 +56,6 @@ public class Number {
     double toDec() {
         double tempDec = 0;
         StringBuilder intPart = new StringBuilder(), doublePart = new StringBuilder();
-
 
 
         // Если основание равно 10, то зачем выполнять все нижеописанное?
@@ -300,16 +300,36 @@ public class Number {
     /** Round up to the index*/
     void Ceil(int index) {
         if (!Double.isNaN(dec) && value.contains(".")) {
-            
+            for (int i = value.indexOf('.') + index + (index >= 0 ? 1 : 0); i < value.length(); i++) {
+                if (value.charAt(i) != '0') {
+                    if (index <= 0)
+                        this.Plus(new Number("1" + "0".repeat(Math.abs(index)), base));
+
+                    else
+                        this.Plus(new Number("0." + "0".repeat(index - 1) + "1", base));
+
+                    break;
+                }
+            }
         }
 
         this.Floor(index);
     }
 
+    /** Return absolute value of number*/
+    static Number abs(Number number) {
+        number.dec = Math.abs(number.dec);
+        number.value = toSN(number.dec, number.base);
+
+        return number;
+    }
+
+    /** Print main info of number (value & dec)*/
     static void print(Number number) {
         System.out.print(number.value + "\t" + number.dec);
     }
 
+    /** Print main info of number (value & dec) and move the cursor to rhe next line*/
     static void println(Number number) {
         System.out.println(number.value + "\t" + number.dec);
     }

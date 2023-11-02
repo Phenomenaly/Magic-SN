@@ -72,9 +72,13 @@ public class Main {
         num13.Ceil();
         Number.println(num13); // 14A	330.0
 
-        // Work in progress...
-        Number num14 = new Number("149.400 001", 16);
+        Number num14 = new Number("100.000 001", 13);
         num14.Ceil(-1);
-        Number.println(num14); // 140	320.0
+        Number.println(num14); // 110	272.0
+
+
+
+        if (Number.isEqual(Number.abs(new Number("-1010", 2)), (new Number("10", 10))) )
+            System.out.println("Hello world!");
     }
 }
