@@ -3,7 +3,7 @@ import static java.lang.Double.parseDouble;
 
 public class Number {
     static String DIGIT = "0123456789ABCDEF";
-    static String SPECIAL = ".-_ ";
+    static String SPECIAL = ",.-_ ";
 
 //    For the future:
 //    static String SPECIAL = ".-_ ()";
@@ -24,12 +24,30 @@ public class Number {
         }
         else {
             dec = NaN;
+            this.value = "NaN";
             BASE = DIGIT;
         }
     }
 
+    Number(int base) {
+        this.base = base;
+
+        BASE = DIGIT.substring(0, base);
+    }
+
     char[] getChrArr() {
         value = value.replace(" ", "").replace("_", "");
+        value = value.replace(",", ".");
+
+        for (int i = value.length() - 1; i >= value.indexOf('.'); i--) {
+            if (value.charAt(i) != '0')
+                break;
+            else
+                value = value.substring(0, i);
+        }
+
+        if (value.charAt(value.length() - 1) == '.')
+            value += "0";
 
         return value.toCharArray();
     }
@@ -37,6 +55,8 @@ public class Number {
     double toDec() {
         double tempDec = 0;
         StringBuilder intPart = new StringBuilder(), doublePart = new StringBuilder();
+
+
 
         // Если основание равно 10, то зачем выполнять все нижеописанное?
         if (base == 10)
@@ -82,6 +102,9 @@ public class Number {
         if (Double.isNaN(number))
             return "NaN";
 
+        if (base == 10)
+            return Double.toString(number);
+
         String sign = "";
         if (number < 0) {
             sign = "-";
@@ -102,16 +125,17 @@ public class Number {
         if (doublePart != 0)
             newNumber.append(".");
 
-
-
+        int count = 0;
+        // Sometimes while cycle works long-time
         while (doublePart != 0) {
             doublePart *= base;
 
             temp = (int) doublePart; doublePart -= temp;
 
             newNumber.append(DIGIT.charAt(temp));
-        }
 
+            count++; if (count > 100) break;
+        }
 
 
         return sign + newNumber;
@@ -141,12 +165,23 @@ public class Number {
         return toSN(number1.dec + number2.dec, number1.base);
     }
 
+    /** Using function Plus as method*/
+    void Plus(Number number) {
+        value = Plus(this, number);
+        dec = toDec();
+    }
     /** Subtractions two numbers (their decimal representation) and displays the answer in the number system of the first number */
     static String Minus(Number number1, Number number2) {
         if (!number1.test || !number2.test)
             return "NaN";
 
         return toSN(number1.dec - number2.dec, number1.base);
+    }
+
+    /** Using function Minus as method*/
+    void Minus(Number number) {
+        value = Minus(this, number);
+        dec = toDec();
     }
 
     /** Multiplications two numbers (their decimal representation) and displays the answer in the number system of the first number */
@@ -157,12 +192,24 @@ public class Number {
         return toSN(number1.dec * number2.dec, number1.base);
     }
 
+    /** Using function Multiply as method*/
+    void Multiply(Number number) {
+        value = Multiply(this, number);
+        dec = toDec();
+    }
+
     /** Division two numbers (their decimal representation) and displays the answer in the number system of the first number */
     static String Division(Number number1, Number number2) {
         if (!number1.test || !number2.test)
             return "NaN";
 
         return toSN(number1.dec / number2.dec, number1.base);
+    }
+
+    /** Using function Division as method*/
+    void Division(Number number) {
+        value = Division(this, number);
+        dec = toDec();
     }
 
     /** Returns true if number1 > number2 */
@@ -190,22 +237,80 @@ public class Number {
         return number1.dec < number2.dec;
     }
 
-    /** Returns a value without fractional part */
-    static String Floor(Number number) {
-        if (Double.isNaN(number.dec))
-            return number.value;
 
-        return number.value.substring(0, number.value.indexOf('.'));
+    /** Round down to the integer part*/
+    void Floor() {
+        if (!Double.isNaN(dec) && value.contains("."))
+            value = value.substring(0, value.indexOf('.'));
+
+        dec = toDec();
     }
 
-    /** Returns a number with the index of decimal places */
-    static String Floor(Number number, int index) {
-        if (Double.isNaN(number.dec))
-            return number.value;
+    /** Round down to the index*/
+    void Floor(int index) {
+        if (!Double.isNaN(dec) && value.contains(".")) {
+            if (value.indexOf('.') + index > 0 && value.length() - value.indexOf('.') > index) {
+                value = value.substring(0, value.indexOf('.') + index + (index > 0 ? 1 : 0));
 
-        if (index > 0 && index < number.value.length() - Floor(number).length())
-            return number.value.substring(0, number.value.indexOf('.') + index + 1);
+                if (index < 0)
+                    value += "0".repeat(Math.abs(index));
+            }
+            else if (value.indexOf('.') + index <= 0)
+                value = "0";
 
-        return number.value.substring(0, number.value.indexOf('.'));
+            dec = toDec();
+        }
+
+    }
+
+    /** Mathematical rounding of a number to the integer part*/
+    void Round() {
+        this.Plus(new Number("0.5", 10));
+
+        this.Floor();
+    }
+
+    /** Mathematical rounding of a number to the index*/
+    void Round(int index) {
+        if (index >= value.length() - value.indexOf('.') || value.indexOf('.') + index < 0) {}
+
+        else if (index >= 0 && index < value.length() - value.indexOf('.'))
+            this.Plus(new Number("0." + "0".repeat(index) + BASE.charAt(base / 2 + (base % 2 == 0 ? 0 : 1)), base));
+
+        else {
+            if (BASE.indexOf(value.charAt(value.indexOf('.') + index)) >= base / 2 + (base % 2 == 0 ? 0 : 1)) {
+                this.Plus(new Number("1" + "0".repeat(Math.abs(index)), base));
+                value += ".0";
+            }
+        }
+
+        this.Floor(index);
+    }
+
+    /** Round up to the integer part*/
+    void Ceil() {
+        if (!Double.isNaN(dec) && value.contains(".")) {
+            if (value.charAt(value.length() - 1) != '0')
+                this.Plus(new Number("1", base));
+        }
+
+        this.Floor();
+    }
+
+    /** Round up to the index*/
+    void Ceil(int index) {
+        if (!Double.isNaN(dec) && value.contains(".")) {
+            
+        }
+
+        this.Floor(index);
+    }
+
+    static void print(Number number) {
+        System.out.print(number.value + "\t" + number.dec);
+    }
+
+    static void println(Number number) {
+        System.out.println(number.value + "\t" + number.dec);
     }
 }
